@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model metric {
+  id                           Int      @id @default(autoincrement())
+  name                         String   @db.VarChar
+  description                  String?  @db.VarChar
+  score1                       String   @db.VarChar
+  score2                       String   @db.VarChar
+  score3                       String   @db.VarChar
+  score4                       String   @db.VarChar
+  record_record_metricTometric record[] @relation("record_metricTometric")
+}
+
+model pupil {
+  id                             Int       @id @default(autoincrement())
+  first_names                    String    @db.VarChar
+  last_name                      String    @db.VarChar
+  year                           Int
+  start_date                     DateTime  @db.Date
+  end_date                       DateTime? @db.Date
+  active                         Boolean   @default(true)
+  more_able_and_talented         Boolean   @default(false)
+  english_as_additional_language Boolean   @default(false)
+  free_school_meals              Boolean   @default(false)
+  additional_learning_needs      Boolean   @default(false)
+  looked_after_child             Boolean   @default(false)
+  gender                         String    @db.VarChar
+  notes                          String    @default("") @db.VarChar
+  record_record_pupilTopupil     record[]  @relation("record_pupilTopupil")
+}
+
+model record {
+  id                           Int      @id @default(autoincrement())
+  pupil                        Int
+  metric                       Int
+  score                        Int
+  note                         String?  @db.VarChar
+  date                         DateTime @db.Date
+  metric_record_metricTometric metric   @relation("record_metricTometric", fields: [metric], references: [id], onDelete: Cascade, map: "FK_record_metric")
+  pupil_record_pupilTopupil    pupil    @relation("record_pupilTopupil", fields: [pupil], references: [id], onDelete: Cascade, map: "FK_record_pupil")
+}
+
+model user {
+  first_names     String   @db.VarChar
+  last_name       String   @db.VarChar
+  email_address   String   @id @db.VarChar
+  hashed_password String   @db.VarChar
+  years           String   @db.VarChar
+  secret          Bytes
+  last_refresh    DateTime @db.Timestamp(6)
+  role            String   @db.VarChar
+}
