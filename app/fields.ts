@@ -1,4 +1,4 @@
-interface FieldSpec {
+export interface FieldSpec {
   name: string,
   type: string, 
   default?: string | number| boolean | null
@@ -18,6 +18,10 @@ export const PUPIL_FIELDS: FieldSpec[] = [
   { name: "Start date", type: "date", default: null },
   { name: "End date", type: "date", default: null },
 ];
+
+export const USER_FIELDS: FieldSpec[] = [
+  { name: "First names", type: "text"},
+]
 
 export const METRIC_FIELDS = [
   { name: "Name", type: "text" },

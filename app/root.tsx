@@ -1,4 +1,4 @@
-import { LinksFunction, V2_MetaFunction, json } from "@remix-run/node";
+import { LinksFunction, V2_MetaFunction } from "@remix-run/node";
 import stylesheet from "~/tailwind.css";
 import {
   Links,
@@ -7,10 +7,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
 } from "@remix-run/react";
 import { Menu, Navbar } from "./components";
 import { APP_VERSION } from "./constant";
+import {  useReducer } from "react";
+import { AppStateContext, AppStateMutationFnContext, mutateAppState } from "./app-state";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -20,14 +21,10 @@ export const meta: V2_MetaFunction = () => {
   return [{ title: `Tracker v${APP_VERSION}` }];
 };
 
-export const loader = async () => {
-  return json({
-    loggedIn: true,
-  });
-};
-
 export default function App() {
-  const { loggedIn } = useLoaderData<typeof loader>();
+  const [ctx, mutate] = useReducer(mutateAppState, {
+    showInactive: false
+  }) 
   return (
     <html lang="en">
       <head>
@@ -37,6 +34,8 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <AppStateContext.Provider value={ctx}>
+          <AppStateMutationFnContext.Provider value={mutate}>
         <div id="app">
           <Navbar />
           <Menu />
@@ -47,6 +46,8 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+          </AppStateMutationFnContext.Provider>
+        </AppStateContext.Provider>
       </body>
     </html>
   );

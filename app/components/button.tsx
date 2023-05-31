@@ -1,5 +1,5 @@
 import { MouseEventHandler, ReactElement } from "react";
-import { Color } from "./Color";
+import { Color } from "./color";
 
 const colors = {
   Red: "hover:bg-red-100 bg-red-200 border-red-200",
@@ -18,12 +18,13 @@ export function Button({
   visible = true,
   handler,
   text,
+  type,
 }: ButtonProps) {
   const btnClass = `p-0.5 m-0.5 rounded w-[120px] border-solid border-2 flex items-center justify-center gap-6 ${
     colors[color]
   } ${visible ? "" : "hidden"}`;
   return (
-    <button className={btnClass} id={id} onClick={handler}>
+    <button className={btnClass} id={id} onClick={handler} type={type}>
       {text}
     </button>
   );
@@ -35,12 +36,13 @@ export function IconButton({
   visible = true,
   handler,
   icon,
+  type,
 }: ButtonProps) {
   const btnClass = `p-0.5 m-0.5 rounded-full w-6 h-6 flex items-center justify-center ${
     colors[color]
   } ${visible ? "" : "hidden"}`;
   return (
-    <button className={btnClass} id={id} onClick={handler}>
+    <button className={btnClass} id={id} onClick={handler} type={type}>
       {icon}
     </button>
   );
@@ -53,4 +55,5 @@ interface ButtonProps {
   visible?: boolean;
   text?: string;
   icon?: ReactElement;
+  type?: "button" | "submit"
 }
