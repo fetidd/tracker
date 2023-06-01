@@ -38,3 +38,24 @@ export const PupilFormDataSchema = zfd.formData({
   additional_learning_needs: zfd.checkbox(),
 })
 export type PupilFormData = z.infer<typeof PupilFormDataSchema>
+
+export function pupilFromJson(j: any): Pupil {
+  try { 
+    return {
+      first_names: j.first_names,
+      last_name: j.last_name,
+      gender: j.gender,
+      year: j.year,
+      start_date: new Date(j.start_date),
+      end_date: j.end_date ? new Date(j.end_date) : undefined,
+      more_able_and_talented: j.more_able_and_talented,
+      english_as_additional_language: j.english_as_additional_language,
+      additional_learning_needs: j.additional_learning_needs,
+      looked_after_child: j.looked_after_child,
+      free_school_meals: j.free_school_meals,
+      active: j.active
+    }
+  } catch {
+    throw Error("wasn't provided a valid pupil json")
+  }
+}

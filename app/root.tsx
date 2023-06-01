@@ -36,16 +36,16 @@ export default function App() {
       <body>
         <AppStateContext.Provider value={ctx}>
           <AppStateMutationFnContext.Provider value={mutate}>
-        <div id="app">
-          <Navbar />
-          <Menu />
-          <div id="outlet" className="p-3">
-            <Outlet />
-          </div>
-        </div>
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
+            <div id="app">
+              <Navbar />
+              <Menu />
+              <div id="outlet" className="p-3">
+                <Outlet />
+              </div>
+            </div>
+            <ScrollRestoration />
+            <Scripts />
+            <LiveReload />
           </AppStateMutationFnContext.Provider>
         </AppStateContext.Provider>
       </body>
