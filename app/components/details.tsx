@@ -32,7 +32,7 @@ type DetailsTextProps = {
 export function DetailsText({text}: DetailsTextProps) {
   return (
     <div>
-      {text.split("\n").map(t => <span>{t}</span>)}
+      {text.split("\n").map((t, i) => <span key={i}>{t}</span>)}
     </div>
   )
 }

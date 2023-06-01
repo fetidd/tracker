@@ -4,6 +4,7 @@ import PupilRow from "./pupil-row";
 import { LoaderArgs, json } from "@remix-run/node";
 import { db } from "~/db/db.server";
 import { useAppState } from "~/app-state";
+import { pupilFromJson } from "~/models/pupil";
 
 export async function loader(_args: LoaderArgs) {
   let pupils = await db.pupil.findMany();
@@ -39,7 +40,7 @@ export default function PupilsIndex() {
         <ul className="sm:columns-2 2xl:columns-3 snap-y">
           {data.pupils
             .filter((p) => (app.showInactive ? true : p.active))
-            .map(p => {return {...p, start_date: new Date(p.start_date), end_date: p.end_date ? new Date(p.end_date): undefined}}) // TODO this is gonna be a pain in the ass, whats a better way? basically the object in the loader has the dates as strings
+            .map(pupilFromJson)
             .map((p) => (
               <PupilRow key={p.id} pupil={p} />
             ))}

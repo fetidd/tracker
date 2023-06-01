@@ -4,12 +4,12 @@ import { ArrowLeft } from "react-feather";
 import { Button, Field } from "~/components";
 import { db } from "~/db/db.server";
 import { PUPIL_FIELDS } from "~/fields";
-import { PupilFormDataSchema } from "~/models/pupil";
+import { NewPupilFormSchema } from "~/models/pupil";
 import { snakeCase } from "~/utils/functions";
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData()
-  let validationResult = PupilFormDataSchema.safeParse(formData)
+  let validationResult = NewPupilFormSchema.safeParse(formData)
   if (validationResult.success) {
     let pupil = await db.pupil.create({data: validationResult.data})
     return redirect(`/pupils/${pupil.id}`)

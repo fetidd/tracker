@@ -18,11 +18,10 @@ const BasePupilSchema = {
   looked_after_child: z.boolean().default(false),
   additional_learning_needs: z.boolean().default(false),
 }
-
 export const PupilSchema = z.object(BasePupilSchema)
 export type Pupil = z.infer<typeof PupilSchema>
 
-export const PupilFormDataSchema = zfd.formData({ 
+const BasePupilFormSchema = {
   first_names: zfd.text(BasePupilSchema.first_names),
   last_name: zfd.text(BasePupilSchema.last_name),
   gender: zfd.text(BasePupilSchema.gender),
@@ -36,12 +35,14 @@ export const PupilFormDataSchema = zfd.formData({
   english_as_additional_language: zfd.checkbox(),
   looked_after_child: zfd.checkbox(),
   additional_learning_needs: zfd.checkbox(),
-})
-export type PupilFormData = z.infer<typeof PupilFormDataSchema>
+}
+export const NewPupilFormSchema = zfd.formData(BasePupilFormSchema)
+export const UpdatePupilFormSchema = zfd.formData({...BasePupilFormSchema, id: zfd.numeric(z.number())})
 
 export function pupilFromJson(j: any): Pupil {
   try { 
     return {
+      id: j.id,
       first_names: j.first_names,
       last_name: j.last_name,
       gender: j.gender,
