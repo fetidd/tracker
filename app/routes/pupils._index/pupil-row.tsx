@@ -11,21 +11,21 @@ export default function PupilRow({ pupil }: PupilRowProps) {
       >
         <Link to={`/pupils/${pupil.id}`}>
           <div className="h-[42px] hover:bg-slate-100 w-full flex gap-5 flex-no-wrap rounded items-center px-2">
-            <span>{`${pupil.first_names} ${pupil.last_name}`}</span>
+            <span>{`${pupil.firstNames} ${pupil.lastName}`}</span>
             <div className="hidden lg:flex justify-start items-center space-x-1 w-[200px]">
-              {pupil.more_able_and_talented && (
+              {pupil.mat && (
                 <Tag id="mat" color="Purple" text="MAT" />
               )}
-              {pupil.english_as_additional_language && (
+              {pupil.eal && (
                 <Tag id="eal" color="Yellow" text="EAL" />
               )}
-              {pupil.additional_learning_needs && (
+              {pupil.aln && (
                 <Tag id="aln" color="Orange" text="ALN" />
               )}
-              {pupil.free_school_meals && (
+              {pupil.fsm && (
                 <Tag id="fsm" color="Green" text="FSM" />
               )}
-              {pupil.looked_after_child && (
+              {pupil.lac && (
                 <Tag id="lac" color="Blue" text="LAC" />
               )}
             </div>
@@ -41,7 +41,7 @@ export default function PupilRow({ pupil }: PupilRowProps) {
           className="snap-start cursor-pointer break-inside-avoid-column"
         >
           <div className="h-[42px] flex justify-between flex-no-wrap rounded items-center px-2">
-            <span className="text-slate-200">{`${pupil.first_names} ${pupil.last_name}`}</span>
+            <span className="text-slate-200">{`${pupil.firstNames} ${pupil.lastName}`}</span>
           </div>
         </li>
       </Link>

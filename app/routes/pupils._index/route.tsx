@@ -7,7 +7,7 @@ import { useAppState } from "~/app-state";
 import { pupilFromJson } from "~/models/pupil";
 
 export async function loader(_args: LoaderArgs) {
-  let pupils = await db.pupil.findMany();
+  let pupils = await db.Pupil.findMany();
   return json({
     pupils: pupils,
   });

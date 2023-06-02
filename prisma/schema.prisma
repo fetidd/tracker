@@ -7,53 +7,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model metric {
-  id                           Int      @id @default(autoincrement())
-  name                         String   @db.VarChar
-  description                  String?  @db.VarChar
-  score1                       String   @db.VarChar
-  score2                       String   @db.VarChar
-  score3                       String   @db.VarChar
-  score4                       String   @db.VarChar
-  record_record_metricTometric record[] @relation("record_metricTometric")
+model Pupil {
+  id         Int       @id @default(autoincrement())
+  firstNames String
+  lastName   String
+  year       Int
+  startDate  DateTime 
+  endDate    DateTime?
+  active     Boolean   @default(true)
+  mat        Boolean   @default(false)
+  eal        Boolean   @default(false)
+  fsm        Boolean   @default(false)
+  aln        Boolean   @default(false)
+  lac        Boolean   @default(false)
+  gender     String
+  notes      String    @default("")
+
+  records    Record[]
 }
 
-model pupil {
-  id                             Int       @id @default(autoincrement())
-  first_names                    String    @db.VarChar
-  last_name                      String    @db.VarChar
-  year                           Int
-  start_date                     DateTime  @db.Date
-  end_date                       DateTime? @db.Date
-  active                         Boolean   @default(true)
-  more_able_and_talented         Boolean   @default(false)
-  english_as_additional_language Boolean   @default(false)
-  free_school_meals              Boolean   @default(false)
-  additional_learning_needs      Boolean   @default(false)
-  looked_after_child             Boolean   @default(false)
-  gender                         String    @db.VarChar
-  notes                          String    @default("") @db.VarChar
-  record_record_pupilTopupil     record[]  @relation("record_pupilTopupil")
+model User {
+  firstNames     String
+  lastName       String
+  email          String   @id
+  hashedPassword String
+  years          String
+  secret         Bytes
+  lastRefresh    DateTime
+  role           Role @default(USER)
 }
 
-model record {
-  id                           Int      @id @default(autoincrement())
-  pupil                        Int
-  metric                       Int
-  score                        Int
-  note                         String?  @db.VarChar
-  date                         DateTime @db.Date
-  metric_record_metricTometric metric   @relation("record_metricTometric", fields: [metric], references: [id], onDelete: Cascade, map: "FK_record_metric")
-  pupil_record_pupilTopupil    pupil    @relation("record_pupilTopupil", fields: [pupil], references: [id], onDelete: Cascade, map: "FK_record_pupil")
+enum Role {
+  USER
+  ADMIN
 }
 
-model user {
-  first_names     String   @db.VarChar
-  last_name       String   @db.VarChar
-  email_address   String   @id @db.VarChar
-  hashed_password String   @db.VarChar
-  years           String   @db.VarChar
-  secret          Bytes
-  last_refresh    DateTime @db.Timestamp(6)
-  role            String   @db.VarChar
+model Metric {
+  id          Int  @id @default(autoincrement())
+  name        String
+  score1      String  
+  score2      String  
+  score3      String  
+  score4      String  
+  description String
+
+  records     Record[]
+}
+
+model Record {
+  id        Int @id @default(autoincrement())
+  pupilId   Int
+  metricId  Int
+  score     Int
+  note      String @default("")
+  createdAt DateTime
+
+  pupil     Pupil @relation(fields: [pupilId], references: [id])
+  metric    Metric @relation(fields: [metricId], references: [id])
 }
