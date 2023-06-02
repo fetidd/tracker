@@ -104,7 +104,6 @@ export default function EditableForm({
                   onCancel(ev);
                 }
                 setInputState(data || mapFromFieldSpecArray(fields));
-                console.log(inputState);
                 setEditMode(!editMode);
               }}
             />

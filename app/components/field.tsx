@@ -9,7 +9,6 @@ type FieldProps = {
 
 // TODO make this generic over ZodSchemas(?) so it can validate itself
 export default function Field({spec, error, current}: FieldProps) {
-  console.log(current)
   if (current instanceof Date) {
     current = current.toJSON().split("T")[0]
   }

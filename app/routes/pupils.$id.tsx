@@ -1,5 +1,5 @@
 import { ActionArgs, LoaderArgs, json, redirect } from "@remix-run/node";
-import { Form, useActionData, useLoaderData, useNavigate } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { Button, DetailsHeader, DetailsRow, DetailsText, Field, Tag } from "~/components";
 import { db } from "~/db/db.server";
@@ -12,7 +12,11 @@ import { snakeCase } from "~/utils/functions";
 export async function loader({ params }: LoaderArgs) {
   const pupilId = params.id!
   let pupil = await db.pupil.findFirst({where: {id: {equals: parseInt(pupilId)}}})
-  return json(pupil)
+  if (pupil) {
+    return json(pupil)
+  } else {
+    return redirect("/pupils")
+  }
 }
 
 export async function action({ request }: ActionArgs) {
@@ -20,27 +24,23 @@ export async function action({ request }: ActionArgs) {
   let validationResult = UpdatePupilFormSchema.safeParse(formData)
   if (validationResult.success) {
     let pupilId = validationResult.data.id
-    console.log(pupilId)
     let pupil = await db.pupil.update({where: {id: pupilId}, data: validationResult.data})
-    return redirect(`/pupils/${pupil.id}`)
+    return json({pupil: pupil, errors: null}, {status: 200})
   } else {
-    return json(validationResult.error.issues.map(i => {return {path: i.path, message: i.message}}), {status: 400}) 
+    return json({errors: validationResult.error.issues.map(i => {return {path: i.path, message: i.message}}), pupil: null}, {status: 400}) 
   }
 }
 
 export default function PupilDetails() {
-  const nav = useNavigate()
   const pupilJson = useLoaderData<typeof loader>()
-  const pupil = pupilFromJson(pupilJson)
-  useEffect(() => {
-    if (pupil === null) {
-      // TODO error toast for non-existent pupil
-      nav("/pupils")
-    }
-  }, [])
+  let pupil = pupilFromJson(pupilJson)
   const [edit, setEdit] = useState(false)
   const actionData = useActionData<typeof action>()
-  const errors = actionData ? actionData : []
+  useEffect(() => {
+    // if we've received a pupil in the action response then it means we have successfully saved a pupil edit, so turn edit mode off
+    if (actionData?.pupil) setEdit(false)
+  }, [actionData])
+  const errors = actionData?.errors ? actionData.errors : []
   return edit === false ? (<>
     <div className="flex justify-between w-full bg-zinc-100 p-2">
       <div className="flex flex-col w-[40%] p-2 pr-12 gap-2">
@@ -76,7 +76,7 @@ export default function PupilDetails() {
       <Form method="post">
         {PUPIL_FIELDS.map(f => {
           let error = errors.find(e => e.path.includes(snakeCase(f.name)))?.message
-          return <Field key={`${snakeCase(f.name)}-input`} spec={f} current={pupil[snakeCase(f.name) as keyof Pupil]} error={error} />
+          return <Field key={`${snakeCase(f.name)}-input`} spec={f} current={pupil![snakeCase(f.name) as keyof Pupil]} error={error} />
         })}
         <div className="flex gap-2">
           <Button type="submit" text="Save" color="Green"/>

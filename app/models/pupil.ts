@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { RefinementCtx, z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { MAX_YEAR, MIN_YEAR } from '~/constant'
 
@@ -36,8 +36,16 @@ const BasePupilFormSchema = {
   looked_after_child: zfd.checkbox(),
   additional_learning_needs: zfd.checkbox(),
 }
+
+function checkActiveEndDate({active, end_date}: Pupil, ctx: RefinementCtx) {
+  let issue = {path: ["end_date"], message: null, code: z.ZodIssueCode.custom}
+  if (active && end_date !== undefined) ctx.addIssue({...issue, message: "Active pupils cannot have an end date"})
+  if (!active && end_date === undefined) ctx.addIssue({...issue, message: "Inactive pupils must have a leave date"})
+}
 export const NewPupilFormSchema = zfd.formData(BasePupilFormSchema)
+  .superRefine(checkActiveEndDate)
 export const UpdatePupilFormSchema = zfd.formData({...BasePupilFormSchema, id: zfd.numeric(z.number())})
+  .superRefine(checkActiveEndDate)
 
 export function pupilFromJson(j: any): Pupil {
   try { 
@@ -56,7 +64,7 @@ export function pupilFromJson(j: any): Pupil {
       free_school_meals: j.free_school_meals,
       active: j.active
     }
-  } catch {
-    throw Error("wasn't provided a valid pupil json")
+  } catch (e) {
+    throw Error(`wasn't provided a valid pupil json: ${e}`)
   }
 }
