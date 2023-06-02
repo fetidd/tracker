@@ -10,7 +10,7 @@ export async function action({ request }: ActionArgs) {
   const formData = await request.formData()
   let validationResult = NewPupilFormSchema.safeParse(formData)
   if (validationResult.success) {
-    let pupil = await db.Pupil.create({data: validationResult.data})
+    let pupil = await db.pupil.create({data: validationResult.data})
     return redirect(`/pupils/${pupil.id}`)
   } else {
     return json(validationResult.error.issues.map(i => {return {path: i.path, message: i.message}}), {status: 400}) 

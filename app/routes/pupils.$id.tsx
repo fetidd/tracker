@@ -11,7 +11,7 @@ import { UpdatePupilFormSchema, pupilFromJson } from "~/models/pupil";
 
 export async function loader({ params }: LoaderArgs) {
   const pupilId = params.id!
-  let pupil = await db.Pupil.findFirst({where: {id: {equals: parseInt(pupilId)}}})
+  let pupil = await db.pupil.findFirst({where: {id: {equals: parseInt(pupilId)}}})
   if (pupil) {
     return json(pupil)
   } else {
@@ -24,10 +24,9 @@ export async function action({ request }: ActionArgs) {
   let validationResult = UpdatePupilFormSchema.safeParse(formData)
   if (validationResult.success) {
     let pupilId = validationResult.data.id
-    let pupil = await db.Pupil.update({where: {id: pupilId}, data: validationResult.data})
+    let pupil = await db.pupil.update({where: {id: pupilId}, data: validationResult.data})
     return json({pupil: pupil, errors: null}, {status: 200})
   } else {
-    console.log(validationResult.error)
     return json({errors: validationResult.error.issues.map(i => {return {path: i.path, message: i.message}}), pupil: null}, {status: 400}) 
   }
 }

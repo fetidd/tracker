@@ -4,6 +4,14 @@ const prisma = new PrismaClient()
 async function main() {
   await prisma.pupil.deleteMany()
   await prisma.pupil.createMany({data: generatePupils(10)})
+  await prisma.metric.create({data: {
+    name: "Behaviour",
+    score1: "bad",
+    score2: "meh",
+    score3: "decent",
+    score4: "good",
+    description: "blah"
+  }})
 }
 main()
   .then(async () => {
