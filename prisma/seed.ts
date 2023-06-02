@@ -23,7 +23,7 @@ function generatePupils(n: number): Pupil[] {
       first_names: faker.person.firstName(),
       last_name: faker.person.lastName(),
       gender: faker.person.gender(),
-      year: faker.number.int({min: -2, max: 6}),
+      year: faker.number.int({min: -1, max: 6}),
       start_date: faker.date.soon(),
       end_date: !active ? faker.date.future(6) : undefined,
       active: active,
