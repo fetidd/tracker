@@ -5,13 +5,14 @@ import { Button, Field } from "~/components";
 import { db } from "~/db/db.server";
 import { PUPIL_FIELDS } from "~/fields";
 import { NewPupilFormSchema } from "~/models/pupil";
+import { routes } from "~/routes";
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData()
   let validationResult = NewPupilFormSchema.safeParse(formData)
   if (validationResult.success) {
     let pupil = await db.pupil.create({data: validationResult.data})
-    return redirect(`/pupils/${pupil.id}`)
+    return redirect(routes.pupils.details(pupil.id))
   } else {
     return json(validationResult.error.issues.map(i => {return {path: i.path, message: i.message}}), {status: 400}) 
   }
@@ -23,7 +24,7 @@ export default function NewPupil() {
   return (
     <>
       <div className="flex justify-start items-center gap-3">
-        <Link to="/pupils">
+        <Link to={routes.pupils.index()}>
           <ArrowLeft size={16} />
         </Link>
         <span className="text-xl">{"Add a learner"}</span>

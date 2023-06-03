@@ -6,16 +6,18 @@ import { Button, DetailsHeader, DetailsRow, DetailsText, Field, Tag } from "~/co
 import { db } from "~/db/db.server";
 import { PUPIL_FIELDS } from "~/fields";
 import { UpdatePupilFormSchema, pupilFromJson } from "~/models/pupil";
+import { routes } from "~/routes";
 
 // TODO record view section
 
 export async function loader({ params }: LoaderArgs) {
-  const pupilId = params.id!
-  let pupil = await db.pupil.findFirst({where: {id: {equals: parseInt(pupilId)}}})
+  const pupilId = parseInt(params.id!)
+  let pupil = await db.pupil.findFirst({where: {id: {equals: pupilId}}})
   if (pupil) {
     return json(pupil)
   } else {
-    return redirect("/pupils")
+    console.log(routes.pupils.index())
+    return redirect(routes.pupils.index())
   }
 }
 

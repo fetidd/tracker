@@ -1,4 +1,4 @@
-import { LinksFunction, V2_MetaFunction } from "@remix-run/node";
+import { LinksFunction, V2_MetaFunction, json } from "@remix-run/node";
 import stylesheet from "~/tailwind.css";
 import {
   Links,
@@ -7,11 +7,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 import { Menu, Navbar } from "./components";
 import { APP_VERSION } from "./constant";
 import {  useReducer } from "react";
 import { AppStateContext, AppStateMutationFnContext, mutateAppState } from "./app-state";
+import { db } from "./db/db.server";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -21,7 +23,15 @@ export const meta: V2_MetaFunction = () => {
   return [{ title: `Tracker v${APP_VERSION}` }];
 };
 
+export async function loader() {
+  let metrics = await db.metric.findMany()
+  return json({
+    metrics: metrics
+  })
+}
+
 export default function App() {
+  const data = useLoaderData<typeof loader>()
   const [ctx, mutate] = useReducer(mutateAppState, {
     showInactive: false
   }) 
@@ -38,7 +48,7 @@ export default function App() {
           <AppStateMutationFnContext.Provider value={mutate}>
             <div id="app">
               <Navbar />
-              <Menu />
+              <Menu data={data} />
               <div id="outlet" className="p-3">
                 <Outlet />
               </div>

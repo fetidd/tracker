@@ -5,6 +5,7 @@ import { LoaderArgs, json } from "@remix-run/node";
 import { db } from "~/db/db.server";
 import { useAppState } from "~/app-state";
 import { pupilFromJson } from "~/models/pupil";
+import { routes } from "~/routes";
 
 export async function loader(_args: LoaderArgs) {
   let pupils = await db.pupil.findMany();
@@ -19,7 +20,7 @@ export default function PupilsIndex() {
   return (
     <>
       <div className="flex gap-2 justify-between">
-        <Link to="/pupils/new">
+        <Link to={routes.pupils.new()}>
           <Button color="Green" text="Add pupil" />
         </Link>
         <div className="flex items-center gap-3">
