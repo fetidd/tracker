@@ -1,7 +1,10 @@
+import { ArrowLeftCircleIcon } from "@heroicons/react/24/solid";
+import Button from "@material-tailwind/react/components/Button";
 import { ActionArgs, json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
-import { ArrowLeft } from "react-feather";
-import { Button, Field } from "~/components";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { Field } from "~/components";
 import { db } from "~/db/db.server";
 import { PUPIL_FIELDS } from "~/fields";
 import { NewPupilFormSchema } from "~/models/pupil";
@@ -20,22 +23,26 @@ export async function action({ request }: ActionArgs) {
 
 export default function NewPupil() {
   const actionData = useActionData<typeof action>()
-  const errors = actionData ? actionData : []
+  useEffect(() => {
+    // if we've received a pupil in the action response then it means we have successfully saved a pupil edit, so turn edit mode off
+    if (actionData) {
+      actionData.forEach(err => toast.error(err.message))
+    }
+  }, [actionData])
   return (
     <>
       <div className="flex justify-start items-center gap-3">
         <Link to={routes.pupils.index()}>
-          <ArrowLeft size={16} />
+          <ArrowLeftCircleIcon/>
         </Link>
         <span className="text-xl">{"Add a learner"}</span>
       </div>
-      <div className="bg-zinc-100 m-2">
+      <div className="m-2">
         <Form method="post">
           {PUPIL_FIELDS.map(f => {
-            let error = errors.find(e => e.path.includes(f.field))?.message
-            return <Field key={`${f.field}-input`} spec={f} error={error} />
+            return <Field key={`${f.field}-input`} type="text"/>
           })}
-          <Button type="submit" text="Add learner" color="Green"/>
+          <Button type="submit">Add Learner</Button>
         </Form>
       </div>
     </>

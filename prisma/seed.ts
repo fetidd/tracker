@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker"
 const prisma = new PrismaClient()
 async function main() {
   await prisma.pupil.deleteMany()
-  await prisma.pupil.createMany({data: generatePupils(10)})
+  generatePupils(40).forEach(async pupil => await prisma.pupil.create({data: pupil}))
   await prisma.metric.create({data: {
     name: "Behaviour",
     score1: "bad",
@@ -12,7 +12,16 @@ async function main() {
     score4: "good",
     description: "blah"
   }})
-}
+  await prisma.metric.create({data: {
+      name: "Effort",
+      score1: "bad",
+      score2: "meh",
+      score3: "decent",
+      score4: "good",
+      description: "blah"
+    }})}
+
+//=======================================================
 main()
   .then(async () => {
     await prisma.$disconnect()

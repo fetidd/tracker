@@ -4,6 +4,7 @@
  * For more information, see https://remix.run/file-conventions/entry.client
  */
 
+import { ThemeProvider } from "@material-tailwind/react";
 import { RemixBrowser } from "@remix-run/react";
 import { startTransition, StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
@@ -11,8 +12,10 @@ import { hydrateRoot } from "react-dom/client";
 startTransition(() => {
   hydrateRoot(
     document,
+    <ThemeProvider>
     <StrictMode>
       <RemixBrowser />
     </StrictMode>
+    </ThemeProvider>
   );
 });

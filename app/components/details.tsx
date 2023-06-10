@@ -17,10 +17,10 @@ type DetailsHeaderProps = {
   value: any
 }
 
-export function DetailsHeader({level, value}: DetailsHeaderProps) {
+export function DetailsHeader({ value }: DetailsHeaderProps) {
   return (
     <div className="w-full">
-      <span className={`text-${level}xl`}>{value}</span>
+      <span className={`text-3xl`}>{value}</span>
     </div>
   )
 }
@@ -32,7 +32,7 @@ type DetailsTextProps = {
 export function DetailsText({text}: DetailsTextProps) {
   return (
     <div>
-      {text.split("\n").map((t, i) => <span key={i}>{t}</span>)}
+      {text.split("\n").map((t, i) => <p key={i}>{t}</p>)}
     </div>
   )
 }

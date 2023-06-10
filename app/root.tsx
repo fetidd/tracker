@@ -9,11 +9,12 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
-import { Menu, Navbar } from "./components";
+import { Navbar } from "./components";
 import { APP_VERSION } from "./constant";
-import {  useReducer } from "react";
+import { useReducer } from "react";
 import { AppStateContext, AppStateMutationFnContext, mutateAppState } from "./app-state";
 import { db } from "./db/db.server";
+import { Toaster } from "react-hot-toast";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -43,15 +44,13 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="bg-blue-gray-100">
+        <Toaster />
         <AppStateContext.Provider value={ctx}>
           <AppStateMutationFnContext.Provider value={mutate}>
-            <div id="app">
-              <Navbar />
-              <Menu data={data} />
-              <div id="outlet" className="p-3">
-                <Outlet />
-              </div>
+            <div className="h-[95vh] w-[100vw] overflow-hidden">
+              <Navbar metrics={data.metrics}/>
+              <Outlet />
             </div>
             <ScrollRestoration />
             <Scripts />

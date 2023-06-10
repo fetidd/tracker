@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -34,13 +34,13 @@ model User {
   years          String
   secret         Bytes
   lastRefresh    DateTime
-  role           Role @default(USER)
+  role           String @default("USER")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
+// enum Role {
+//   USER
+//   ADMIN
+// }
 
 model Metric {
   id          Int  @id @default(autoincrement())
