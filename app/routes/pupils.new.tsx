@@ -1,6 +1,6 @@
 import { Card, Input, Switch, Textarea } from "@material-tailwind/react";
 import Button from "@material-tailwind/react/components/Button";
-import { ActionArgs, json, redirect } from "@remix-run/node";
+import { ActionArgs, json } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -31,7 +31,7 @@ export default function NewPupil() {
     if (actionData) {
       if (actionData.success && actionData.pupil !== null) {
         toast.success(`Added ${actionData.pupil.firstNames} ${actionData.pupil.lastName}`)
-        nav(routes.pupils.index())
+        nav(`${routes.pupils.index()}?justCreated=${actionData.pupil.id}`)
       } else {
         actionData.errors.forEach(err => toast.error(err.message))
       }

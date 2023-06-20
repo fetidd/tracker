@@ -9,7 +9,7 @@ import { YEARS } from "~/constant";
 import { sortPupils } from "~/utils/functions";
 import { PencilIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { Pupil, parsePupil } from "~/models/pupil";
-import { Fragment, RefObject, useEffect, useState } from "react";
+import { Fragment, RefObject, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 export async function loader(_args: LoaderArgs) {
@@ -86,11 +86,11 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
   }, [fetcher])
 
   // Allow the table to automatically scroll to the just created pupil // FIXME deleting a pupil means one less ref on redraw, so React freaks out
-  let refs: {[i: number]: RefObject<HTMLTableRowElement> | null} = {}
-  // pupils.forEach(p => refs[p.id!] = useRef<HTMLTableRowElement>(null))
-  // useEffect(() => {
-  //   if (selected !== undefined && refs[selected]?.current) refs[selected]?.current?.scrollIntoView()  
-  // }, [])
+  useEffect(() => {
+    if (selected !== undefined) {
+      document.querySelector(`#pupil-${selected}`)?.scrollIntoView()
+    }
+  }, [])
   
   return (
       <Card className="p-3 grow overflow-auto">
@@ -103,7 +103,7 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
             .filter(p => p.active ? true : app.showInactive ? true : false)
             .map((p) => (
               <Fragment key={p.id}>
-              <tr className={`cursor-pointer hover:bg-gray-100 `} ref={refs[p.id!]} onClick={() => {
+              <tr id={`pupil-${p.id}`} className={`cursor-pointer hover:bg-gray-100 `} onClick={() => {
                     if (expanded === p.id) {
                       setExpanded(null)
                     } else if (p.id !== undefined) {
