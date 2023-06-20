@@ -1,15 +1,18 @@
 import { Dispatch, createContext, useContext } from "react"
 
 export type AppState = {
-  showInactive: boolean  
+  showInactive: boolean,
+  pupilFilter: string, 
 }
 
 export const AppStateContext = createContext<AppState>({
-  showInactive: false
+  showInactive: false,
+  pupilFilter: "",
 })
 
 export type AppStateMutation = 
   | { property: "showInactive", mutation: boolean }
+  | { property: "pupilFilter", mutation: string }
 
 export const AppStateMutationFnContext = createContext<Dispatch<AppStateMutation> | undefined>(undefined)
 
@@ -29,6 +32,9 @@ export function mutateAppState(state: AppState, mutation: AppStateMutation): App
   switch (mutation.property) {
     case "showInactive": {
       return {...state, showInactive: mutation.mutation};
+    }
+    case "pupilFilter": {
+      return {...state, pupilFilter: mutation.mutation};
     }
   }
 }

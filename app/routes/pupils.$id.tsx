@@ -1,4 +1,4 @@
-import { Button, Input, Switch, Textarea } from "@material-tailwind/react";
+import { Button, Card, Input, Switch, Textarea } from "@material-tailwind/react";
 import { ActionArgs, LoaderArgs, json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
@@ -52,7 +52,8 @@ export default function PupilDetails() {
     }
   }, [actionData])
     return (
-      <Form method="post">
+      <Card className="p-3 grow">
+      <Form method="POST">
         <div className="flex flex-col items-center md:flex-row md:items-start gap-6">
           <div className="flex flex-col gap-4">
             <div className="w-72">
@@ -92,6 +93,7 @@ export default function PupilDetails() {
         </div>
         <input type="hidden" name="id" value={pupil.id} />
       </Form>
+      </Card>
   )
 }
 

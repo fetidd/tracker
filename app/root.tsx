@@ -34,7 +34,8 @@ export async function loader() {
 export default function App() {
   const data = useLoaderData<typeof loader>()
   const [ctx, mutate] = useReducer(mutateAppState, {
-    showInactive: false
+    showInactive: false,
+    pupilFilter: "",
   }) 
   return (
     <html lang="en">

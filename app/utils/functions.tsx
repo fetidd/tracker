@@ -3,13 +3,17 @@ export function snakeCase(str: string): string {
 }
 
 export function sortPupils(a: any, b: any): number {
-  if (a.lastName == b.lastName) {
-    if (a.firstNames > b.firstNames) return 1
-    else if (a.firstNames < b.firstNames) return -1
+  let af: string = a.firstNames.toLowerCase()
+  let al: string = a.lastName.toLowerCase()
+  let bf: string = b.firstNames.toLowerCase()
+  let bl: string = b.lastName.toLowerCase()
+  if (al === bl) {
+    if (af > bf) return 1
+    else if (af < bf) return -1
     else return 0
   }
-  if (a.lastName > b.lastName) return 1
-  else if (a.lastName < b.lastName) return -1
+  if (al > bl) return 1
+  else if (al < bl) return -1
   else return 0
 }
 
