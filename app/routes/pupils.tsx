@@ -1,22 +1,11 @@
 import { UserGroupIcon, UserPlusIcon } from "@heroicons/react/24/solid";
 import { Card, List, ListItem } from "@material-tailwind/react";
-import { Link, Outlet, isRouteErrorResponse, useRouteError } from "@remix-run/react";
-import { Fragment } from "react";
+import { Link, Outlet } from "@remix-run/react";
 import { routes } from "~/routes";
+import { LIST_ITEM_CLASS } from "~/styling";
+import { ErrorBoundaryInner } from "~/components";
 
-export function ErrorBoundary() {
-  const routeError = useRouteError()
-  if (isRouteErrorResponse(routeError)) {
-    const errors = routeError.data.map((e: any) => {
-      return (
-        <div>
-          <p>{e.message}</p>
-        </div>
-      )
-    })
-    return <Fragment><p>errors</p>{errors}</Fragment>
-  }
-}
+export const ErrorBoundary = () => ErrorBoundaryInner()
 
 export default function Pupils() {
   return (
@@ -27,7 +16,6 @@ export default function Pupils() {
   )
 }
 
-const LIST_ITEM_CLASS = "flex gap-2 items-center w-fit"
 function PupilMenu({}: PupilMenuProps) {
   return (
     <Card className="p-3 w-[200px]">
