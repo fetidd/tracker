@@ -3,6 +3,8 @@ import { faker } from "@faker-js/faker"
 const prisma = new PrismaClient()
 async function main() {
   await prisma.pupil.deleteMany()
+  await prisma.metric.deleteMany()
+  await prisma.record.deleteMany()
   generatePupils(40).forEach(async pupil => await prisma.pupil.create({data: pupil}))
   await prisma.metric.create({data: {
     name: "Behaviour",
