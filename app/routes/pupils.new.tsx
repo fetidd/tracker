@@ -38,7 +38,7 @@ export default function NewPupil() {
     }
   }, [actionData])
   return (
-    <Card className="p-3 grow">
+    <Card className="p-3 grow h-fit">
         <Form method="post">
           <div className="flex flex-col items-center md:flex-row md:items-start gap-6">
             <div className="flex flex-col gap-4">

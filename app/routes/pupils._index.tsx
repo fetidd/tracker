@@ -9,7 +9,7 @@ import { YEARS } from "~/constant";
 import { sortPupils } from "~/utils/functions";
 import { PencilIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { Pupil, parsePupil } from "~/models/pupil";
-import { Fragment, RefObject, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 export async function loader(_args: LoaderArgs) {
@@ -47,10 +47,15 @@ type SettingsBoxProps = {
 }
 function SettingsBox({  }: SettingsBoxProps) {
   const [app, mutate] = useAppState()
+  const filterInput = useRef<HTMLInputElement>(null)
   return (
     <Card className="flex flex-row gap-4 items-center p-3">
-      <div className="w-72">
-        <Input label="Filter" onChange={ev => mutate({property: "pupilFilter", mutation: ev.target.value})} defaultValue={app!.pupilFilter} />
+      <div className="w-72 relative flex w-full max-w-[24rem]">
+        <Input inputRef={filterInput} label="Filter" onChange={ev => mutate({property: "pupilFilter", mutation: ev.target.value})} defaultValue={app!.pupilFilter} />
+        <Button size="sm" disabled={filterInput.current?.value === ""} className="!absolute right-1 top-1 rounded" onClick={() => {
+          mutate({property: "pupilFilter", mutation: ""})
+          filterInput.current!.value = ""
+        }} >Clear</Button>
       </div>
       <Checkbox
         label="Show inactive learners"
