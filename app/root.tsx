@@ -49,7 +49,7 @@ export default function App() {
         <Toaster />
         <AppStateContext.Provider value={ctx}>
           <AppStateMutationFnContext.Provider value={mutate}>
-            <div className="h-[95vh] w-[100vw] overflow-hidden">
+            <div className="h-[99vh] w-[100vw] overflow-hidden">
               <Navbar metrics={data.metrics}/>
               <Outlet />
             </div>

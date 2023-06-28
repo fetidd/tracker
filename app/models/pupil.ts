@@ -3,8 +3,9 @@ import { zfd } from 'zod-form-data'
 import { YEARS } from '~/constant'
 import { MAX_YEAR, MIN_YEAR } from '~/constant'
 
-const BasePupilSchema = {
-  id: z.number().optional(),
+// BASE PUPIL
+// ==========
+const BasePupil = {
   firstNames: z
     .string({ required_error: "Learner must have at least one first name" })
     .min(1, "cannot have empty first names"),
@@ -30,17 +31,18 @@ const BasePupilSchema = {
   lac: z.boolean(),
   aln: z.boolean(),
 }
-export const PupilSchema = z.object(BasePupilSchema)
+
+export const PupilSchema = z.object({...BasePupil, id: z.number()})
 export type Pupil = z.infer<typeof PupilSchema>
 
-const BasePupilFormSchema = {
-  firstNames: zfd.text(BasePupilSchema.firstNames),
-  lastName: zfd.text(BasePupilSchema.lastName),
-  gender: zfd.text(BasePupilSchema.gender),
-  year: zfd.numeric(BasePupilSchema.year),
+const BasePupilForm = {
+  firstNames: zfd.text(BasePupil.firstNames),
+  lastName: zfd.text(BasePupil.lastName),
+  gender: zfd.text(BasePupil.gender),
+  year: zfd.numeric(BasePupil.year),
   startDate: zfd.text(z.string()),
   endDate: zfd.text(z.string().optional()),
-  notes: zfd.text(BasePupilSchema.notes),
+  notes: zfd.text(BasePupil.notes),
   active: zfd.checkbox(),
   mat: zfd.checkbox(),
   fsm: zfd.checkbox(),
@@ -48,6 +50,36 @@ const BasePupilFormSchema = {
   lac: zfd.checkbox(),
   aln: zfd.checkbox(),
 }
+
+// NEW PUPIL
+// ==========
+const NewPupil = {
+  ...BasePupil
+}
+const NewPupilForm = {
+  ...BasePupilForm
+}
+
+export const NewPupilSchema = z.object(NewPupil)
+export const NewPupilFormSchema = zfd.formData(NewPupilForm).superRefine(checkActiveEndDate)
+export type NewPupil = z.infer<typeof NewPupilSchema>
+
+
+// METRIC PUPIL
+// =============
+const PupilUpdate = {
+  ...BasePupil,
+  id: z.number(),
+}
+const PupilUpdateForm = {
+  ...BasePupilForm,
+  id: zfd.numeric(PupilUpdate.id),
+}
+
+export const PupilUpdateSchema = z.object(PupilUpdate)
+export const PupilUpdateFormSchema = zfd.formData(PupilUpdateForm).superRefine(checkActiveEndDate)
+export type PupilUpdate = z.infer<typeof PupilUpdateSchema>
+
 
 /** Zod refinement to ensure a Pupil cannot be created or 
   * updated to be active with an end date */
@@ -60,11 +92,4 @@ function checkActiveEndDate({ active, endDate }: any, ctx: RefinementCtx) {
     ctx.addIssue({ ...issue, message: "Inactive pupils must have an end date" })
   }
 }
-export const NewPupilFormSchema = zfd.formData(BasePupilFormSchema)
-  .superRefine(checkActiveEndDate)
-export const UpdatePupilFormSchema = zfd.formData({ ...BasePupilFormSchema, id: zfd.numeric(z.number()) })
-  .superRefine(checkActiveEndDate)
 
-export const parsePupil = (x: any) => {
-  return PupilSchema.parse(x) // TODO how can I make the argument be something better than 'any'
-}

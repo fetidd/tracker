@@ -45,10 +45,14 @@ model User {
 model Metric {
   id          Int  @id @default(autoincrement())
   name        String
-  score1      String  
+  score1      String
   score2      String  
   score3      String  
   score4      String  
+  score1desc  String
+  score2desc  String  
+  score3desc  String  
+  score4desc  String  
   description String
 
   records     Record[]

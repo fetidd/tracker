@@ -1,40 +1,25 @@
 import { Button, Card, Input, Switch, Textarea } from "@material-tailwind/react";
-import { ActionArgs, LoaderArgs, json, redirect } from "@remix-run/node";
+import { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { db } from "~/db/db.server";
-import { UpdatePupilFormSchema } from "~/models/pupil";
+import { handleFetchOne, handleUpdate } from "~/handlers/data-handlers";
+import { PupilUpdateFormSchema } from "~/models/pupil";
+import PupilRepo from "~/repos/pupil";
 import { routes } from "~/routes";
 
 // TODO record view section
 
 export async function loader({ params }: LoaderArgs) {
   const pupilId = parseInt(params.id!)
-  let pupil = await db.pupil.findFirst({where: {id: {equals: pupilId}}})
-  if (pupil) {
-    return json(pupil)
-  } else {
-    return redirect(routes.pupils.index())
-  }
+  const repo = new PupilRepo()
+  return await handleFetchOne(pupilId, repo)
 }
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData()
-  let validationResult = UpdatePupilFormSchema.safeParse(formData)
-  if (validationResult.success) {
-    let update = {
-      ...validationResult.data, 
-      startDate: new Date(validationResult.data.startDate), 
-      endDate: validationResult.data.endDate ? new Date(validationResult.data.endDate) : null
-    }
-    let pupil = await db.pupil.update({where: {id: update.id}, data: update})
-    return json({pupil: pupil, error: null}, {status: 200})
-  } else {
-    return json({error: validationResult.error.issues.map(i => {
-      return { path: i.path, message: i.message }
-    }), pupil: null}, {status: 400}) 
-  }
+  const repo = new PupilRepo()
+  return await handleUpdate(PupilUpdateFormSchema, formData, repo)
 }
 
 export default function PupilDetails() {
@@ -44,11 +29,12 @@ export default function PupilDetails() {
   const [isActive, setIsActive] = useState(pupil.active)
   useEffect(() => {
     // if we've received a pupil in the action response then it means we have successfully saved a pupil edit, so turn edit mode off
-    if (actionData?.pupil) {      
-      toast.success(`Successfully updated ${actionData.pupil.firstNames} ${actionData.pupil.lastName}`)
+    if (actionData?.entity) {      
+      let pupil = actionData.entity
+      toast.success(`Successfully updated ${pupil.firstNames} ${pupil.lastName}`)
       nav(routes.pupils.index())
-    } else if (actionData?.error) {
-      actionData.error.forEach(e => toast.error(e.message))
+    } else if (actionData?.errors) {
+      actionData.errors.forEach(e => toast.error(e.message))
     }
   }, [actionData])
     return (

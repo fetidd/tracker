@@ -6,22 +6,8 @@ async function main() {
   await prisma.metric.deleteMany()
   await prisma.record.deleteMany()
   generatePupils(40).forEach(async pupil => await prisma.pupil.create({data: pupil}))
-  await prisma.metric.create({data: {
-    name: "Behaviour",
-    score1: "bad",
-    score2: "meh",
-    score3: "decent",
-    score4: "good",
-    description: "blah"
-  }})
-  await prisma.metric.create({data: {
-      name: "Effort",
-      score1: "bad",
-      score2: "meh",
-      score3: "decent",
-      score4: "good",
-      description: "blah"
-    }})}
+  generateMetrics().forEach(async metric => await prisma.metric.create({data: metric}))
+}
 
 //=======================================================
 main()
@@ -40,7 +26,7 @@ function generatePupils(n: number) {
     return {
       firstNames: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      gender: faker.person.gender(),
+      gender: Math.random() < 0.5 ? "Male" : "Female",
       year: faker.number.int({min: -1, max: 6}),
       startDate: faker.date.soon(),
       endDate: !active ? faker.date.future(6) : undefined,
@@ -51,6 +37,23 @@ function generatePupils(n: number) {
       aln: Math.random() < 0.2,
       eal: Math.random() < 0.2,
       notes: faker.lorem.lines()
+    }
+  })
+}
+
+function generateMetrics() {
+  return [...Array(7).keys()].map(() => {
+    return {
+      name: faker.word.noun().toUpperCase(),
+      score1: faker.word.adjective().toUpperCase(),
+      score2: faker.word.adjective().toUpperCase(),
+      score3: faker.word.adjective().toUpperCase(),
+      score4: faker.word.adjective().toUpperCase(),
+      score1desc: faker.lorem.lines(5),
+      score2desc: faker.lorem.lines(5),
+      score3desc: faker.lorem.lines(5),
+      score4desc: faker.lorem.lines(5),
+      description: faker.lorem.lines({min: 10, max: 30})
     }
   })
 }

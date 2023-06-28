@@ -1,26 +1,18 @@
 import { Card, Input, Switch, Textarea } from "@material-tailwind/react";
 import Button from "@material-tailwind/react/components/Button";
-import { ActionArgs, json } from "@remix-run/node";
+import { ActionArgs } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { db } from "~/db/db.server";
+import { handleNew } from "~/handlers/data-handlers";
 import { NewPupilFormSchema } from "~/models/pupil";
+import PupilRepo from "~/repos/pupil";
 import { routes } from "~/routes";
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData()
-  let validationResult = NewPupilFormSchema.safeParse(formData)
-  if (validationResult.success) {
-    let pupil = await db.pupil.create({data: {
-      ...validationResult.data, 
-      startDate: new Date(validationResult.data.startDate),
-      endDate: validationResult.data.endDate ? new Date(validationResult.data.endDate) : null
-    }})
-    return json({success: true, pupil: pupil, errors: []})
-  } else {
-    return json({success: false, errors: validationResult.error.issues.map(i => {return {path: i.path, message: i.message}}), pupil: null}, {status: 400}) 
-  }
+  const repo = new PupilRepo()
+  return await handleNew(NewPupilFormSchema, formData, repo)
 }
 
 export default function NewPupil() {
@@ -29,9 +21,10 @@ export default function NewPupil() {
   const nav = useNavigate()
   useEffect(() => {
     if (actionData) {
-      if (actionData.success && actionData.pupil !== null) {
-        toast.success(`Added ${actionData.pupil.firstNames} ${actionData.pupil.lastName}`)
-        nav(`${routes.pupils.index()}?justCreated=${actionData.pupil.id}`)
+      if (actionData.success && actionData.entity !== null) {
+        let pupil = actionData.entity
+        toast.success(`Added ${pupil.firstNames} ${pupil.lastName}`)
+        nav(`${routes.pupils.index()}?justCreated=${pupil.id}`)
       } else {
         actionData.errors.forEach(err => toast.error(err.message))
       }

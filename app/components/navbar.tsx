@@ -1,3 +1,4 @@
+import { ArrowDownTrayIcon, ChevronDownIcon } from "@heroicons/react/24/solid";
 import {
   Typography,
   Button,
@@ -13,7 +14,7 @@ import { useState } from "react";
 import { APP_VERSION } from "~/constant";
 import { routes } from "~/routes";
  
-export default function Navbar({ metrics }: TrackerNavbarProps) {
+export default function Navbar({ metrics }: NavbarProps) {
   return (
       <Card className="sticky inset-0 z-10 h-max max-w-full py-2 px-4 m-2">
         <div className="flex justify-between items-center">
@@ -22,9 +23,10 @@ export default function Navbar({ metrics }: TrackerNavbarProps) {
             <ul className="flex gap-8">
               <Typography className="text-lg" as="li"><Link to={routes.pupils.index()}>Learners</Link></Typography>
               {metrics.slice(undefined, 5).map(metric => {
-                return <Typography key={metric.id} className="text-lg" as="li"><Link to={routes.metrics.details(metric.id)}>{metric.name}</Link></Typography>
+                return <Typography key={metric.id} className="text-lg" as="li"><Link to={routes.metrics.index(metric.id)}>{metric.name}</Link></Typography>
               })}
-              {metrics.length > 5 && <ExtraMetricsMenu metrics={metrics.slice(0)} />}
+              {metrics.length > 5 && <ExtraMetricsMenu metrics={metrics.slice(5)} />}
+              <Typography className="text-sm" as="li"><Link to={routes.metrics.new()}>Add new metric</Link></Typography>
             </ul>
           </div>
           <div>
@@ -35,7 +37,7 @@ export default function Navbar({ metrics }: TrackerNavbarProps) {
   );
 }
 
-export interface TrackerNavbarProps {
+interface NavbarProps {
   metrics: Metric[]
 }
 
@@ -46,11 +48,10 @@ function ExtraMetricsMenu({ metrics }: ExtraMetricsMenuProps) {
 
   return (
     <Menu open={isOpen} handler={setIsOpen}>
-      <MenuHandler><Button>More...</Button></MenuHandler>
+      <MenuHandler><ChevronDownIcon className="w-5 cursor-pointer" /></MenuHandler>
       <MenuList>
-        {metrics.map(metric => {
-          return <MenuItem key={metric.id} onClick={closeMenu}><Typography as="li"><Link to={routes.metrics.details(metric.id)}>{metric.name}</Link></Typography></MenuItem>
-        })}
+        {metrics.map(metric => <MenuItem key={metric.id} onClick={closeMenu}><Link to={routes.metrics.index(metric.id)}><Typography as="li">{metric.name}</Typography></Link></MenuItem>
+        )}
       </MenuList>
     </Menu>
   )

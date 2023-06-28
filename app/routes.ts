@@ -6,9 +6,9 @@ const pupils = {
 }
 
 const metrics = {
-  index: () => `/metrics`,
+  index: (id: number) => `/metrics/${id}`,
   new: () => `/metrics/new`,
-  details: (id: number) => `/metrics/${id}`,
+  manage: (id: number) => `/metrics/${id}/manage`,
   records: (id: number) => `/metrics/${id}/records`,
 }
 

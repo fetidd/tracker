@@ -1,42 +1,41 @@
 import { useFetcher, useLoaderData, useNavigate, useSearchParams } from "@remix-run/react";
-import { ActionArgs, LoaderArgs, json } from "@remix-run/node";
-import { db } from "~/db/db.server";
-import { useAppState } from "~/app-state";
-import { routes } from "~/routes";
+import { ActionArgs, LoaderArgs } from "@remix-run/node";
+import toast from "react-hot-toast";
 import Button from "@material-tailwind/react/components/Button";
 import { Card, Checkbox, Chip, Input, Typography } from "@material-tailwind/react";
+import { PencilIcon, XMarkIcon } from "@heroicons/react/24/solid";
+
+import { useAppState } from "~/app-state";
+import { routes } from "~/routes";
 import { YEARS } from "~/constant";
 import { sortPupils } from "~/utils/functions";
-import { PencilIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { Pupil, parsePupil } from "~/models/pupil";
 import { Fragment, useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
+import { css } from "~/style";
+import { handleDelete, handleFetchAll } from "~/handlers/data-handlers";
+import PupilRepo from "~/repos/pupil";
+import { Pupil, PupilSchema } from "~/models/pupil";
 
 export async function loader(_args: LoaderArgs) {
-  let pupils = await db.pupil.findMany();
-  return json({
-    pupils: pupils,
-  });
+  const repo = new PupilRepo()
+  return await handleFetchAll<Pupil>(repo)
 }
 
 export async function action({ request }: ActionArgs) {
   const data = await request.formData()
+  const repo = new PupilRepo()
   if (request.method == "DELETE") {
     let id = data.get("id")
-    if (id !== null) {
-      let res = await db.pupil.delete({where: {id: parseInt(id as string)}})
-      return json({success: true, name: `${res.firstNames} ${res.lastName}`})
-    }
+    if (id !== null) return await handleDelete<Pupil>(parseInt(id as string), repo)
   }
 }
 
 export default function PupilsIndex() {
   let data = useLoaderData<typeof loader>();
-  let pupils = data.pupils.map(parsePupil)
+  let pupils = data.map(p => PupilSchema.parse(p))
   let [searchParams, _] = useSearchParams()
   let justCreated = searchParams.get("justCreated") !== null ? parseInt(searchParams.get("justCreated")!) : undefined
   return (
-    <div className="flex flex-col gap-2 h-[85vh] grow">
+    <div className="flex flex-col gap-2 h-[89vh] grow">
       <SettingsBox />
       <PupilTable pupils={pupils} selected={justCreated} />
     </div>
@@ -90,7 +89,6 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
     }
   }, [fetcher])
 
-  // Allow the table to automatically scroll to the just created pupil // FIXME deleting a pupil means one less ref on redraw, so React freaks out
   useEffect(() => {
     if (selected !== undefined) {
       document.querySelector(`#pupil-${selected}`)?.scrollIntoView()
@@ -98,8 +96,8 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
   }, [])
   
   return (
-      <Card className="p-3 grow overflow-auto">
-      <div className="overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-thumb-rounded">
+      <Card className={css.outletCard}>
+      <div className={css.scrollingDiv}>
       <table className="w-full min-w-max table-auto text-left">
         <tbody>
           {pupils
@@ -121,12 +119,12 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
                   </Typography>
                 </td>
                 <td className={`p-2 w-[100px] ${expanded==p.id?'bg-gray-100':''}`}>
-                  <Typography variant="small" color="blue-gray" className="font-normal">
+                  <Typography variant="paragraph" color="blue-gray" className="font-normal">
                     {YEARS[p.year.toString() as keyof typeof YEARS]}
                   </Typography>
                 </td>
                 <td className={`p-2 w-[200px] ${expanded==p.id?'bg-gray-100':''}`}>
-                  <Typography variant="small" color="blue-gray" className="font-normal">
+                  <Typography variant="paragraph" color="blue-gray" className="font-normal">
                     {p.gender}
                   </Typography>
                 </td>
@@ -146,12 +144,12 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
                   <tr className="cursor-pointer pl-10 gap-4" onClick={() => setExpanded(null)}>
                     <td colSpan={3} className={`p-2 bg-gray-100 ${!p.notes ? "rounded-b-md" : ""}`}>
                       <div className="flex items-center gap-5">
-                        <Typography variant="small" color={p.endDate ? "red" : "green"} className="font-normal">
-                          {p.startDate.toDateString()}
+                        <Typography variant="paragraph" color={p.endDate ? "red" : "green"} className="font-normal">
+                          {p.startDate.toLocaleDateString()}
                         </Typography>
                         {p.endDate && 
-                          <Typography variant="small" color="red" className="font-normal">
-                            {"-> " + (p.endDate !== undefined && p.endDate !== null ? p.endDate.toDateString() : "")}
+                          <Typography variant="paragraph" color="red" className="font-normal">
+                            {"-> " + (p.endDate !== undefined && p.endDate !== null ? p.endDate.toLocaleDateString() : "")}
                           </Typography>
                         }
                         <div className="flex gap-2 items-center">
@@ -170,7 +168,7 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
                   {p.notes && p.notes.split("\n").slice(0, 3).map((note, i) => ( 
                     <tr key={i} className="cursor-pointer pl-10 gap-4" onClick={() => setExpanded(null)}>
                       <td colSpan={5} className={`p-2 bg-gray-100 ${i === 3 || i === p.notes!.split("\n").length-1 ? "rounded-b-md": ""}`}>
-                        <Typography variant="small">{note}</Typography>
+                        <Typography variant="paragraph">{note}</Typography>
                       </td>
                     </tr>))
                   }
