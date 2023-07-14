@@ -1,6 +1,6 @@
 import { Card, Input, Switch, Textarea } from "@material-tailwind/react";
 import Button from "@material-tailwind/react/components/Button";
-import { ActionArgs } from "@remix-run/node";
+import { ActionArgs, json } from "@remix-run/node";
 import { Form, useActionData, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -12,7 +12,8 @@ import { routes } from "~/routes";
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData()
   const repo = new PupilRepo()
-  return await handleNew(NewPupilFormSchema, formData, repo)
+  let res = await handleNew(NewPupilFormSchema, formData, repo)
+  return json(res)
 }
 
 export default function NewPupil() {
@@ -21,7 +22,7 @@ export default function NewPupil() {
   const nav = useNavigate()
   useEffect(() => {
     if (actionData) {
-      if (actionData.success && actionData.entity !== null) {
+      if (actionData.success) {
         let pupil = actionData.entity
         toast.success(`Added ${pupil.firstNames} ${pupil.lastName}`)
         nav(`${routes.pupils.index()}?justCreated=${pupil.id}`)

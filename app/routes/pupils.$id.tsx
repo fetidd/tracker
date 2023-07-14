@@ -1,5 +1,5 @@
 import { Button, Card, Input, Switch, Textarea } from "@material-tailwind/react";
-import { ActionArgs, LoaderArgs } from "@remix-run/node";
+import { ActionArgs, LoaderArgs, json } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -13,28 +13,36 @@ import { routes } from "~/routes";
 export async function loader({ params }: LoaderArgs) {
   const pupilId = parseInt(params.id!)
   const repo = new PupilRepo()
-  return await handleFetchOne(pupilId, repo)
+  let res = await handleFetchOne(pupilId, repo)
+  if (res.success) {
+    return json(res)
+  } else {
+    throw json(res)
+  }
 }
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData()
   const repo = new PupilRepo()
-  return await handleUpdate(PupilUpdateFormSchema, formData, repo)
+  let res = await handleUpdate(PupilUpdateFormSchema, formData, repo)
+  return json(res)
 }
 
 export default function PupilDetails() {
-  const pupil = useLoaderData<typeof loader>()
+  const pupil = useLoaderData<typeof loader>().entity
   const nav = useNavigate()
   const actionData = useActionData<typeof action>()
   const [isActive, setIsActive] = useState(pupil.active)
   useEffect(() => {
     // if we've received a pupil in the action response then it means we have successfully saved a pupil edit, so turn edit mode off
-    if (actionData?.entity) {      
-      let pupil = actionData.entity
-      toast.success(`Successfully updated ${pupil.firstNames} ${pupil.lastName}`)
-      nav(routes.pupils.index())
-    } else if (actionData?.errors) {
-      actionData.errors.forEach(e => toast.error(e.message))
+    if (actionData) {
+      if (actionData.success) {      
+        let pupil = actionData.entity
+        toast.success(`Successfully updated ${pupil.firstNames} ${pupil.lastName}`)
+        nav(routes.pupils.index())
+      } else {
+        actionData.errors.forEach(e => toast.error(e.message))
+      }
     }
   }, [actionData])
     return (

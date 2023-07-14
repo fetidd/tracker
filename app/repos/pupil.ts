@@ -1,7 +1,7 @@
 import { db } from "~/db/db.server"
 import { PupilUpdate, NewPupil } from "~/models/pupil"
 import { Pupil } from "@prisma/client"
-import AbstractRepo from "./repo"
+import { AbstractRepo } from "./repo"
 
 export default class PupilRepo extends AbstractRepo<Pupil, NewPupil, PupilUpdate> {
 	constructor() {

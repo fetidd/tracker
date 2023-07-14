@@ -1,7 +1,7 @@
 import { db } from "~/db/db.server"
 import { MetricUpdate, NewMetric } from "~/models/metric"
 import { Metric } from "@prisma/client"
-import AbstractRepo from "./repo"
+import { AbstractRepo } from "./repo"
 
 export default class MetricRepo extends AbstractRepo<Metric, NewMetric, MetricUpdate> {
 	constructor() {

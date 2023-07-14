@@ -2,11 +2,12 @@ import { PrismaClient, } from '@prisma/client'
 import { faker } from "@faker-js/faker"
 const prisma = new PrismaClient()
 async function main() {
+  await prisma.record.deleteMany()
   await prisma.pupil.deleteMany()
   await prisma.metric.deleteMany()
-  await prisma.record.deleteMany()
   generatePupils(40).forEach(async pupil => await prisma.pupil.create({data: pupil}))
   generateMetrics().forEach(async metric => await prisma.metric.create({data: metric}))
+  generateRecords().then(res => res.forEach(async record => await prisma.record.create({data: record})))
 }
 
 //=======================================================
@@ -54,6 +55,20 @@ function generateMetrics() {
       score3desc: faker.lorem.lines(5),
       score4desc: faker.lorem.lines(5),
       description: faker.lorem.lines({min: 10, max: 30})
+    }
+  })
+}
+
+async function generateRecords() {
+  let pupils = await prisma.pupil.findMany()
+  let metrics = await prisma.metric.findMany()
+  return [...Array(300).keys()].map(() => {
+    return {
+      score: Math.ceil(Math.random() * 4),
+      pupilId: pupils[Math.floor(Math.random() * pupils.length)].id,
+      metricId: metrics[Math.floor(Math.random() * metrics.length)].id,
+      createdAt: faker.date.past(),
+      note: faker.lorem.lines(2)
     }
   })
 }

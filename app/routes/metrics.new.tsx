@@ -1,5 +1,5 @@
 import { Button, Card, Input, Textarea } from "@material-tailwind/react"
-import { ActionArgs } from "@remix-run/node"
+import { ActionArgs, json } from "@remix-run/node"
 import { Form, useActionData, useNavigate } from "@remix-run/react"
 import { useEffect } from "react"
 import toast from "react-hot-toast"
@@ -12,7 +12,8 @@ export async function action({ request }: ActionArgs) {
   const formData = await request.formData()
   const repo = new MetricRepo()
   // can switch here based on the form POSTing to the route
-  return await handleNew(NewMetricFormSchema, formData, repo)
+  let res = await handleNew(NewMetricFormSchema, formData, repo)
+  return json(res)
 }
 
 export default function NewMetric() {
@@ -20,7 +21,7 @@ export default function NewMetric() {
   const nav = useNavigate()
   useEffect(() => {
     if (actionData) {
-      if (actionData.success && actionData.entity !== null) {
+      if (actionData.success) {
         toast.success(`Added ${actionData.entity.name}`)
         nav(routes.metrics.index(actionData.entity.id))
       } else {

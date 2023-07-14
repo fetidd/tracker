@@ -4,9 +4,20 @@ type Table = {
   findMany: (args?: any) => any,
   findFirst: (args: any) => any,
   delete: (args: any) => any,
+  deleteMany: (args: any) => any
 } | null
 
-export default abstract class AbstractRepo<DBType, NewType, UpdateType> {
+export interface IRepo {
+  create: (data: any) => any,
+  update: (id: number, data: any) => any,
+  delete: (id: number) => any,
+  deleteMany: (where: any) => any,
+  read: () => any,
+  readOne: (id: number) => any,
+  readMany: (where: any) => any,
+}
+
+export abstract class AbstractRepo<DBType, NewType, UpdateType> implements IRepo {
   table: Table = null
   
   async create(data: NewType): Promise<DBType> {
@@ -36,6 +47,11 @@ export default abstract class AbstractRepo<DBType, NewType, UpdateType> {
   
   async delete(id: number):Promise<DBType> {
     let res = await this.table!.delete({where: {id: id}})
+		return res
+  } 
+  
+  async deleteMany(where: any):Promise<DBType> {
+    let res = await this.table!.deleteMany(where)
 		return res
   } 
 }

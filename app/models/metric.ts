@@ -29,6 +29,9 @@ const BaseMetricForm = {
   score4desc: zfd.text(BaseMetric.score4desc),
 }
 
+export const MetricSchema = z.object({...BaseMetric, id: z.number()})
+export type Metric = z.infer<typeof MetricSchema>
+
 // NEW METRIC
 // ==========
 const NewMetric = {

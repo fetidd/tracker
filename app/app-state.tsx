@@ -1,9 +1,12 @@
 import { Dispatch, createContext, useContext } from "react"
+import { z } from "zod"
 
-export type AppState = {
-  showInactive: boolean,
-  pupilFilter: string, 
-}
+export const AppStateSchema = z.object({
+  showInactive: z.boolean().default(false),
+  pupilFilter: z.string().default("")
+})
+
+export type AppState = z.infer<typeof AppStateSchema>
 
 export const AppStateContext = createContext<AppState>({
   showInactive: false,

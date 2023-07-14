@@ -1,5 +1,5 @@
 import { useFetcher, useLoaderData, useNavigate, useSearchParams } from "@remix-run/react";
-import { ActionArgs, LoaderArgs } from "@remix-run/node";
+import { ActionArgs, LoaderArgs, json } from "@remix-run/node";
 import toast from "react-hot-toast";
 import Button from "@material-tailwind/react/components/Button";
 import { Card, Checkbox, Chip, Input, Typography } from "@material-tailwind/react";
@@ -14,24 +14,42 @@ import { css } from "~/style";
 import { handleDelete, handleFetchAll } from "~/handlers/data-handlers";
 import PupilRepo from "~/repos/pupil";
 import { Pupil, PupilSchema } from "~/models/pupil";
+import RecordRepo from "~/repos/record";
 
 export async function loader(_args: LoaderArgs) {
   const repo = new PupilRepo()
-  return await handleFetchAll<Pupil>(repo)
+  let res = await handleFetchAll(repo)
+  if (res.success) {
+    return json(res)
+  } else {
+    throw json(res)
+  }
 }
 
 export async function action({ request }: ActionArgs) {
   const data = await request.formData()
-  const repo = new PupilRepo()
+  const pupils = new PupilRepo()
+  const records = new RecordRepo()
   if (request.method == "DELETE") {
     let id = data.get("id")
-    if (id !== null) return await handleDelete<Pupil>(parseInt(id as string), repo)
+    if (id !== null) {
+      let deleteRecordsRes = await handleDelete({where: {pupilId: parseInt(id as string)}}, records)
+      let deletePupilRes = await handleDelete(parseInt(id as string), pupils)
+      if (deleteRecordsRes.success && deletePupilRes.success) {
+        return json({success: true, entity: deletePupilRes.entity})
+      } else {
+        return json({succcess: false, errors: [
+          deleteRecordsRes,
+          deletePupilRes
+        ]})
+      }
+    }
   }
 }
 
 export default function PupilsIndex() {
-  let data = useLoaderData<typeof loader>();
-  let pupils = data.map(p => PupilSchema.parse(p))
+  let data = useLoaderData<typeof loader>().entity
+  let pupils = data.map((p: Pupil) => PupilSchema.parse(p))
   let [searchParams, _] = useSearchParams()
   let justCreated = searchParams.get("justCreated") !== null ? parseInt(searchParams.get("justCreated")!) : undefined
   return (
@@ -42,9 +60,7 @@ export default function PupilsIndex() {
   );
 }
 
-type SettingsBoxProps = {
-}
-function SettingsBox({  }: SettingsBoxProps) {
+function SettingsBox() {
   const [app, mutate] = useAppState()
   const filterInput = useRef<HTMLInputElement>(null)
   return (
@@ -76,16 +92,18 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
   const [app, _mutate] = useAppState()
   const nav = useNavigate()
   const [expanded, setExpanded] = useState<number | null>(selected ? selected : null)
+  const [selectedToDelete, setSelectedToDelete] = useState<Pupil | null>(null)
   const fetcher = useFetcher()
 
   const deletePupil = (id: number) => {  
     fetcher.submit({id: id.toString()}, {method: "DELETE", action: `${routes.pupils.index()}?index`})
+    setSelectedToDelete(null)
   }
 
   useEffect(() => {
     if (fetcher.data && fetcher.state == "idle" && fetcher.data.success) {
-      let pupil = fetcher.data.name
-      toast.success(`Deleted ${pupil}`)
+      let pupil = PupilSchema.parse(fetcher.data.entity)
+      toast.success(`Deleted ${pupil.firstNames} ${pupil.lastName}`)
     }
   }, [fetcher])
 
@@ -96,6 +114,10 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
   }, [])
   
   return (
+      <>
+      <div className="flex justify-center">
+        <DeletePupilDialog pupil={selectedToDelete} deleteCallback={deletePupil} setSelectedToDelete={setSelectedToDelete}/>
+      </div>
       <Card className={css.outletCard}>
       <div className={css.scrollingDiv}>
       <table className="w-full min-w-max table-auto text-left">
@@ -160,7 +182,7 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
                       </div>
                     </td>
                     <td className="p-2 pt-1 bg-gray-100 rounded-b-md">
-                        <Button size="sm" className="mx-auto flex items-center gap-3 w-[100px]" color="red" onClick={() => deletePupil(p.id!)}>
+                        <Button size="sm" className="mx-auto flex items-center gap-3 w-[100px]" color="red" onClick={() => setSelectedToDelete(p)}>
                          <XMarkIcon className="w-8"/> Delete
                         </Button>                    
                     </td>
@@ -181,5 +203,30 @@ function PupilTable({ pupils, selected }: PupilTableProps) {
       </table>
       </div>
       </Card>
+      </>
   )
+}
+
+type DeletePupilDialogProps = {
+  pupil: Pupil | null,
+  deleteCallback: (id: number) => void,
+  setSelectedToDelete: (arg: Pupil | null) => void
+}
+
+function DeletePupilDialog({ pupil, deleteCallback, setSelectedToDelete }: DeletePupilDialogProps) {
+  if (pupil) {
+    return (
+      <Card className={`${css.outletCard} h-[120px]`}>
+        <div className="flex flex-col justify-between h-full">
+          <Typography variant="h5">{`${pupil.firstNames} ${pupil.lastName} and all their records etc. will be gone forever - really delete?`}</Typography>
+          <div className="flex justify-around gap-4">
+            <Button color="red" onClick={() => deleteCallback(pupil.id)}>Yes</Button>
+            <Button className="grow" color="green" onClick={() => setSelectedToDelete(null)}>No</Button>
+          </div>
+        </div>
+      </Card>
+    )
+  } else {
+    return <></>
+  }
 }

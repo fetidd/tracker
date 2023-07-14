@@ -13,8 +13,8 @@ import { Navbar } from "./components";
 import { APP_VERSION } from "./constant";
 import { useReducer } from "react";
 import { AppStateContext, AppStateMutationFnContext, mutateAppState } from "./app-state";
-import { db } from "./db/db.server";
 import { Toaster } from "react-hot-toast";
+import MetricRepo from "./repos/metric";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -25,7 +25,8 @@ export const meta: V2_MetaFunction = () => {
 };
 
 export async function loader() {
-  let metrics = await db.metric.findMany()
+  const repo = new MetricRepo()
+  let metrics = await repo.read()
   return json({
     metrics: metrics
   })
